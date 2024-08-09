@@ -15,14 +15,15 @@
 # PLACE can be used multiple times.
 # The robot should not move outside the grid boundaries ("Fall"). "Fall" commands are ignored. (Including PLACE)
 
+from command_parser import CommandParser
+
 def main():
-    # command_parser = CommandParser()
+    parser = CommandParser()
     # robot = Robot()
 
     while True:
         user_input = input("Enter command: \n")
-        print(user_input)
-        # command = command_parser.parse(user_input)
+        command = parser.parse(user_input)
         # robot.execute(command)
         
 if __name__ == "__main__":
