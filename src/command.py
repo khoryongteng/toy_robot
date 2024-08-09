@@ -12,9 +12,9 @@ class CommandType(IntEnum):
     
 class Direction(IntEnum):
     NORTH = 0
-    SOUTH = 0
-    EAST = 0
-    WEST = 0
+    SOUTH = 1
+    EAST = 2
+    WEST = 3
     
 @dataclass
 class Command:
