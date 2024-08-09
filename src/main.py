@@ -16,15 +16,16 @@
 # The robot should not move outside the grid boundaries ("Fall"). "Fall" commands are ignored. (Including PLACE)
 
 from command_parser import CommandParser
+from robot import Robot
 
 def main():
     parser = CommandParser()
-    # robot = Robot()
+    robot = Robot()
 
     while True:
         user_input = input("Enter command: \n")
         command = parser.parse(user_input)
-        # robot.execute(command)
+        robot.execute(command)
         
 if __name__ == "__main__":
     main()
