@@ -2,55 +2,50 @@ import re
 from command import Command, CommandType, Direction
 
 class CommandParser:
-    VALID_COMMAND_TYPES = {"PLACE", "MOVE", "LEFT", "RIGHT", "REPORT"}
+    _command_type_map = {
+        "PLACE" : CommandType.PLACE,
+        "MOVE" : CommandType.MOVE,
+        "LEFT" : CommandType.LEFT,
+        "RIGHT" : CommandType.RIGHT,
+        "REPORT" : CommandType.REPORT,
+    }
     
+    _direction_map = {
+        "NORTH" : Direction.NORTH,
+        "SOUTH" : Direction.SOUTH,
+        "EAST" : Direction.EAST,
+        "WEST" : Direction.WEST,
+    }
+    
+    def _parse_place_arguments(self, args_str: str) -> tuple[int, int, Direction]:
+        pattern = r"^(\d+),(\d+),(NORTH|SOUTH|EAST|WEST)$"
+        match = re.match(pattern, args_str)
+        if not match:
+            raise ValueError(f"Invalid PLACE arguments: {args_str}")
+        x_str, y_str, direction_str = match.groups()
+        return int(x_str), int(y_str), self._direction_map[direction_str]
+    
+    # Note: Assuming a strict format for commands, stops program on invalid format
     def parse(self, command_str: str) -> Command:
-        # Note: Assuming a strict format for commands, stops program on invalid format
         command_str = command_str.strip()
-        command_parts = command_str.split()
         
         # If empty command, return NULL command to skip action
-        if len(command_parts) == 0:
+        if not command_str:
             return Command(CommandType.NULL)
         
-        if len(command_parts) > 2:
-            raise ValueError(f"Invalid command format, too many parts: {command_str}")
-        
-        if command_parts[0] not in self.VALID_COMMAND_TYPES:
+        command_parts = command_str.split()
+        if command_parts[0] not in self._command_type_map:
             raise ValueError(f"Invalid command type: {command_parts[0]}")
         
-        if command_parts[0] == "PLACE":
-            pattern = r"^(\d+),(\d+),(NORTH|SOUTH|EAST|WEST)$"
-            match = re.match(pattern, command_parts[1])
-            if not match:
-                raise ValueError(f"Invalid PLACE arguments: {command_parts[1]}")
-            x_str, y_str, direction_str = match.groups()
-            
-            if direction_str == "NORTH":
-                direction = Direction.NORTH
-            elif direction_str == "SOUTH":
-                direction = Direction.SOUTH
-            elif direction_str == "EAST":
-                direction = Direction.EAST
-            elif direction_str == "WEST":
-                direction = Direction.WEST
-            else:
-                raise ValueError(f"Invalid direction: {direction_str}")
-            
-            return Command(CommandType.PLACE, int(x_str), int(y_str), direction)
+        command_type = self._command_type_map[command_parts[0]]
+        if command_type == CommandType.PLACE:
+            if len(command_parts) != 2:
+                raise ValueError(f"Invalid command format, no arguments provided for PLACE command: {command_str}  Example: PLACE 1,2,NORTH")
+            x, y, direction = self._parse_place_arguments(command_parts[1])
+            return Command(CommandType.PLACE, x, y, direction)
                             
         # Check for rest of Commands with no Arguments
         if len(command_parts) != 1:
             raise ValueError(f"Invalid command format, expecting no arguments for {command_parts[0]}: {command_str}")
         
-        if command_parts[0] == "MOVE":
-            return Command(CommandType.MOVE)
-        
-        if command_parts[0] == "LEFT":
-            return Command(CommandType.LEFT)
-        
-        if command_parts[0] == "RIGHT":
-            return Command(CommandType.RIGHT)
-        
-        if command_parts[0] == "REPORT":
-            return Command(CommandType.REPORT)   
+        return Command(command_type)

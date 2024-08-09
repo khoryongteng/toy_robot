@@ -30,10 +30,10 @@ class TestCommandParser:
             parser.parse(command_str)
             
     @pytest.mark.parametrize("command_str", [
-        ("MOVE 1,2,NORTH"),
-        ("LEFT XXX"),
-        ("RIGHT 3,4,EAST"),
-        ("REPORT ABCDE"),
+        "MOVE 1,2,NORTH",
+        "LEFT XXX",
+        "RIGHT 3,4,EAST",
+        "REPORT ABCDE",
     ])
     def test_parse_one_part_command_with_arguments_raises_value_error(self, parser, command_str):
         with pytest.raises(ValueError):
@@ -42,20 +42,25 @@ class TestCommandParser:
     @pytest.mark.parametrize("command_str, expected", [
         ("MOVE", Command(CommandType.MOVE)),
         ("LEFT", Command(CommandType.LEFT)), 
-        ("RIGHT",Command(CommandType.RIGHT)), 
+        ("RIGHT", Command(CommandType.RIGHT)), 
         ("REPORT", Command(CommandType.REPORT)),
     ])
     def test_parse_valid_one_part_commands(self, parser, command_str, expected):
         result = parser.parse(command_str)
         assert asdict(result) == asdict(expected)
     
+    def test_parse_place_with_no_arguments_raises_value_error(self, parser):
+        command_str = "PLACE"
+        with pytest.raises(ValueError):
+            parser.parse(command_str)
+    
     @pytest.mark.parametrize("command_str", [
-        ("PLACE 12NORTH"),
-        ("PLACE 33,EAST"),
-        ("PLACE 100,100,WESTT"),
-        ("PLACE 88,88,SOU"),
-        ("PLACE AA,BB,EAST"),
-        ("PLACE ABC"),
+        "PLACE 12NORTH",
+        "PLACE 33,EAST",
+        "PLACE 100,100,WESTT",
+        "PLACE 88,88,SOU",
+        "PLACE AA,BB,EAST",
+        "PLACE ABC",
     ])
     def test_parse_place_with_invalid_arguments_raises_value_error(self, parser, command_str):
         with pytest.raises(ValueError):
