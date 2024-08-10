@@ -23,12 +23,15 @@ def main():
     parser = CommandParser()
     robot = Robot()
 
-    while True:
-        user_input = input("Enter command: \n")
-        command = parser.parse(user_input)
-        output = robot.execute(command)
-        if output.command_ran == CommandType.REPORT and output.report:
-            print(f"Output: {output.report.x},{output.report.y},{output.report.direction.name}")
+    try:
+        while True:
+            user_input = input("Enter command: \n")
+            command = parser.parse(user_input)
+            output = robot.execute(command)
+            if output.command_ran == CommandType.REPORT and output.report:
+                print(f"Output: {output.report.x},{output.report.y},{output.report.direction.name}")
+    except ValueError as e:
+        print(f"ERROR: {str(e)}")
             
 if __name__ == "__main__":
     main()
