@@ -18,6 +18,10 @@
 from command_parser import CommandParser
 from robot import Robot
 from command import CommandType
+from output import Report
+
+def print_report(report: Report):
+    print(f"Output: {report.x},{report.y},{report.direction.name}")
 
 def main():
     parser = CommandParser()
@@ -29,7 +33,7 @@ def main():
             command = parser.parse(user_input)
             output = robot.execute(command)
             if output.command_ran == CommandType.REPORT and output.report:
-                print(f"Output: {output.report.x},{output.report.y},{output.report.direction.name}")
+                print_report(output.report)
     except ValueError as e:
         print(f"ERROR: {str(e)}")
             
