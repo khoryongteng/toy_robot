@@ -9,7 +9,7 @@ from src.output import Output, Report
 @pytest.fixture
 def robot():
     return Robot()
- 
+
 class TestRobot:
     def test_robot_initialized_with_place_set_to_false(self):
         robot = Robot()
@@ -106,4 +106,44 @@ class TestRobot:
         robot.execute(Command(CommandType.MOVE))
         output = robot.execute(Command(CommandType.REPORT))
         expected_output = Output(CommandType.REPORT, Report(expected_coordinates[0], expected_coordinates[1], place_command.direction))
+        assert asdict(output) == asdict(expected_output)
+        
+    def test_left_function_not_called_when_not_placed(self, robot):
+        assert robot._placed == False
+        with patch.object(robot, '_left') as mock_left:
+            output = robot.execute(Command(CommandType.LEFT))
+            assert asdict(output) == asdict(Output(CommandType.NULL))
+            mock_left.assert_not_called()
+
+    @pytest.mark.parametrize("initial_direction, expected_direction", [
+        (Direction.NORTH, Direction.WEST),
+        (Direction.WEST, Direction.SOUTH),
+        (Direction.SOUTH, Direction.EAST),
+        (Direction.EAST, Direction.NORTH),
+    ])          
+    def test_left_updates_direction_correctly(self, robot, initial_direction, expected_direction):
+        robot.execute(Command(CommandType.PLACE, 0, 0, initial_direction)),
+        robot.execute(Command(CommandType.LEFT))
+        output = robot.execute(Command(CommandType.REPORT))
+        expected_output = Output(CommandType.REPORT, Report(0, 0, expected_direction))
+        assert asdict(output) == asdict(expected_output)
+
+    def test_right_function_not_called_when_not_placed(self, robot):
+        assert robot._placed == False
+        with patch.object(robot, '_right') as mock_right:
+            output = robot.execute(Command(CommandType.RIGHT))
+            assert asdict(output) == asdict(Output(CommandType.NULL))
+            mock_right.assert_not_called()
+            
+    @pytest.mark.parametrize("initial_direction, expected_direction", [
+        (Direction.NORTH, Direction.EAST),
+        (Direction.EAST, Direction.SOUTH),
+        (Direction.SOUTH, Direction.WEST),
+        (Direction.WEST, Direction.NORTH),
+    ])          
+    def test_right_updates_direction_correctly(self, robot, initial_direction, expected_direction):
+        robot.execute(Command(CommandType.PLACE, 0, 0, initial_direction)),
+        robot.execute(Command(CommandType.RIGHT))
+        output = robot.execute(Command(CommandType.REPORT))
+        expected_output = Output(CommandType.REPORT, Report(0, 0, expected_direction))
         assert asdict(output) == asdict(expected_output)

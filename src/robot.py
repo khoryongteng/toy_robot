@@ -37,11 +37,11 @@ class Robot:
         if self._is_within_bounds(new_x, new_y):
             self._position = (new_x, new_y)
             
-    def _left(self):
-        pass
+    def _left(self):        
+        self._direction_vector = (-self._direction_vector[1], self._direction_vector[0])
     
     def _right(self):
-        pass
+        self._direction_vector = (self._direction_vector[1], -self._direction_vector[0])
     
     def _report(self):
         return Report(self._position[0], self._position[1], self._vectors_to_direction[self._direction_vector])
