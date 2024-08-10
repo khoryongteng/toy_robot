@@ -6,7 +6,7 @@ class Robot:
     _min_y = 0
     _max_y = 4
     
-    _direction_vectors = {
+    _direction_to_vectors = {
         Direction.NORTH : (0, 1),
         Direction.SOUTH : (0, -1),
         Direction.EAST : (1, 0),
@@ -14,9 +14,8 @@ class Robot:
     }
     
     def __init__(self):
-        self._x = None
-        self._y = None
-        self._direction = None
+        self._position = None
+        self._direction_vector = None
         self._placed = False
     
     def _is_within_bounds(self, x: int, y: int) -> bool:
@@ -24,17 +23,16 @@ class Robot:
         
     def _place(self, x: int, y: int, direction: Direction):
         if self._is_within_bounds(x, y):
-            self._x = x
-            self._y = y
-            self._direction = direction
+            self._position = (x, y)
+            self._direction_vector = self._direction_to_vectors[direction]
             self._placed = True
     
     def _move(self):
-        dx, dy = self._direction_vectors[self._direction]
-        new_x = self._x + dx 
-        new_y = self._y + dy
+        dx, dy = self._direction_vector
+        new_x = self._position[0] + dx 
+        new_y = self._position[1] + dy
         if self._is_within_bounds(new_x, new_y):
-            self._x, self._y = new_x, new_y
+            self._position = (new_x, new_y)
             
     def _left(self):
         pass
