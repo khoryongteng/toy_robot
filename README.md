@@ -32,6 +32,7 @@ This program simulates a toy robot moving on a 5x5 grid based on a series of com
 - The first valid command must be `PLACE`. Any commands before the first `PLACE` command are ignored.
 - The `PLACE` command can be used multiple times to reposition the robot.
 - The robot cannot move outside the grid boundaries. Any commands that would cause the robot to "fall" off the grid are ignored, including the `PLACE` command if the coordinates are outside the grid.
+- All commands in a command file must be valid (Additional constraint not in instructions)
 
 ## Getting Started
 
