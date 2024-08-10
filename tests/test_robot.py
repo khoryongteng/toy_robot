@@ -47,43 +47,40 @@ class TestRobot:
         state_after = robot.__dict__.copy()
         assert state_before == state_after
     
-    @pytest.mark.parametrize("place_command, expected_position, expected_direction_vector", [
-        (Command(CommandType.PLACE, 0, 0, Direction.NORTH), (0, 0), (0, 1)),
-        (Command(CommandType.PLACE, 0, 4, Direction.SOUTH), (0, 4), (0, -1)),
-        (Command(CommandType.PLACE, 4, 0, Direction.EAST), (4, 0), (1, 0)),
-        (Command(CommandType.PLACE, 2, 3, Direction.WEST), (2, 3), (-1, 0)),
+    @pytest.mark.parametrize("place_command", [
+        Command(CommandType.PLACE, 0, 0, Direction.NORTH),
+        Command(CommandType.PLACE, 0, 4, Direction.SOUTH),
+        Command(CommandType.PLACE, 4, 0, Direction.EAST),
+        Command(CommandType.PLACE, 2, 3, Direction.WEST),
     ])       
-    def test_place_with_valid_coordinates_sets_correct_values(self, robot, place_command, expected_position, expected_direction_vector):
+    def test_place_with_valid_coordinates_sets_correct_values(self, robot, place_command):
         robot.execute(place_command)
         assert robot._placed == True
-        assert robot._position == expected_position
-        assert robot._direction_vector == expected_direction_vector
+        output = robot.execute(Command(CommandType.REPORT))
+        expected_output = Output(CommandType.REPORT, Report(place_command.x, place_command.y, place_command.direction))
+        assert asdict(output) == asdict(expected_output)
         
-    @pytest.mark.parametrize("place_command, expected_position, expected_direction_vector", [
-        (Command(CommandType.PLACE, 0, 0, Direction.NORTH), (0, 0), (0, 1)),
-        (Command(CommandType.PLACE, 0, 4, Direction.SOUTH), (0, 4), (0, -1)),
-        (Command(CommandType.PLACE, 4, 0, Direction.EAST), (4, 0), (1, 0)),
-        (Command(CommandType.PLACE, 2, 3, Direction.WEST), (2, 3), (-1, 0)),
+    @pytest.mark.parametrize("place_command", [
+        Command(CommandType.PLACE, 0, 0, Direction.NORTH),
+        Command(CommandType.PLACE, 0, 4, Direction.SOUTH),
+        Command(CommandType.PLACE, 4, 0, Direction.EAST),
+        Command(CommandType.PLACE, 2, 3, Direction.WEST),
     ])
-    def test_place_with_valid_coordinates_sets_correct_values_even_when_already_placed(self, robot, place_command, expected_position, expected_direction_vector):
+    def test_place_with_valid_coordinates_sets_correct_values_even_when_already_placed(self, robot, place_command):
         robot.execute(Command(CommandType.PLACE, 0, 0, Direction.NORTH))
+        assert robot._placed == True
         robot.execute(place_command)
         assert robot._placed == True
-        assert robot._position == expected_position
-        assert robot._direction_vector == expected_direction_vector
+        output = robot.execute(Command(CommandType.REPORT))
+        expected_output = Output(CommandType.REPORT, Report(place_command.x, place_command.y, place_command.direction))
+        assert asdict(output) == asdict(expected_output)
         
     def test_move_function_not_called_when_not_placed(self, robot):
         assert robot._placed == False
         with patch.object(robot, '_move') as mock_move:
-            robot.execute(Command(CommandType.MOVE))
+            output = robot.execute(Command(CommandType.MOVE))
+            assert asdict(output) == asdict(Output(CommandType.NULL))
             mock_move.assert_not_called()
-            
-    def test_move_function_called_when_placed(self, robot):
-        robot.execute(Command(CommandType.PLACE, 0, 0, Direction.NORTH))
-        assert robot._placed == True
-        with patch.object(robot, '_move') as mock_move:
-            robot.execute(Command(CommandType.MOVE))
-            mock_move.assert_called_once()
     
     @pytest.mark.parametrize("place_command", [
         Command(CommandType.PLACE, 0, 4, Direction.NORTH),
@@ -94,7 +91,9 @@ class TestRobot:
     def test_move_does_not_change_coordinates_when_moving_out_of_bounds(self, robot, place_command):
         robot.execute(place_command)
         robot.execute(Command(CommandType.MOVE))
-        assert robot._position == (place_command.x, place_command.y)
+        output = robot.execute(Command(CommandType.REPORT))
+        expected_output = Output(CommandType.REPORT, Report(place_command.x, place_command.y, place_command.direction))
+        assert asdict(output) == asdict(expected_output)
     
     @pytest.mark.parametrize("place_command, expected_coordinates", [
         (Command(CommandType.PLACE, 2, 2, Direction.NORTH), (2, 3)),
@@ -102,7 +101,9 @@ class TestRobot:
         (Command(CommandType.PLACE, 2, 2, Direction.EAST), (3, 2)),
         (Command(CommandType.PLACE, 2, 2, Direction.WEST), (1, 2)),
     ])    
-    def test_move_changes_coordinates_by_one_when_moving_within_bounds(self, robot, place_command, expected_coordinates):
+    def test_move_changes_coordinates_by_one_when_moving_within_bounds(self, robot, place_command, expected_coordinates):        
         robot.execute(place_command)
         robot.execute(Command(CommandType.MOVE))
-        assert robot._position == expected_coordinates
+        output = robot.execute(Command(CommandType.REPORT))
+        expected_output = Output(CommandType.REPORT, Report(expected_coordinates[0], expected_coordinates[1], place_command.direction))
+        assert asdict(output) == asdict(expected_output)
