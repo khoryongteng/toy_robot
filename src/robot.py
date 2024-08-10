@@ -1,4 +1,5 @@
 from command import Command, CommandType, Direction
+from output import Output, Report
 
 class Robot:
     _min_x = 0
@@ -12,6 +13,8 @@ class Robot:
         Direction.EAST : (1, 0),
         Direction.WEST : (-1, 0),
     }
+    
+    _vectors_to_direction = {v: d for d, v in _direction_to_vectors.items()}
     
     def __init__(self):
         self._position = None
@@ -41,23 +44,30 @@ class Robot:
         pass
     
     def _report(self):
-        pass
+        return Report(self._position[0], self._position[1], self._vectors_to_direction[self._direction_vector])
     
     def execute(self, command: Command):
         if command.command_type == CommandType.NULL:
-            return
+            return Output(CommandType.NULL)
         
         if command.command_type == CommandType.PLACE:
             self._place(command.x, command.y, command.direction)
+            return Output(CommandType.PLACE)
         
         if not self._placed:
-            return
+            return Output(CommandType.NULL)
         
         if command.command_type == CommandType.MOVE:
             self._move()
-        elif command.command_type == CommandType.LEFT:
+            return Output(CommandType.MOVE)
+        if command.command_type == CommandType.LEFT:
             self._left()
-        elif command.command_type == CommandType.RIGHT:
+            return Output(CommandType.LEFT)
+        if command.command_type == CommandType.RIGHT:
             self._right()
-        elif command.command_type == CommandType.REPORT:
-            self._report()
+            return Output(CommandType.RIGHT)
+        if command.command_type == CommandType.REPORT:
+            report = self._report()
+            return Output(CommandType.REPORT, report)
+        
+        return Output(CommandType.NULL)

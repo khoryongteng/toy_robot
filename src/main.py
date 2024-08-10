@@ -17,6 +17,7 @@
 
 from command_parser import CommandParser
 from robot import Robot
+from command import CommandType
 
 def main():
     parser = CommandParser()
@@ -25,7 +26,9 @@ def main():
     while True:
         user_input = input("Enter command: \n")
         command = parser.parse(user_input)
-        robot.execute(command)
-        
+        output = robot.execute(command)
+        if output.command_ran == CommandType.REPORT and output.report:
+            print(f"Output: {output.report.x},{output.report.y},{output.report.direction.name}")
+            
 if __name__ == "__main__":
     main()

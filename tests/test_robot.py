@@ -1,7 +1,10 @@
 import pytest
 from unittest.mock import patch
+from dataclasses import asdict
+
 from src.robot import Robot
 from src.command import Command, CommandType, Direction
+from src.output import Output, Report
 
 @pytest.fixture
 def robot():
@@ -11,6 +14,26 @@ class TestRobot:
     def test_robot_initialized_with_place_set_to_false(self):
         robot = Robot()
         assert robot._placed == False
+        
+    def test_report_function_not_called_when_not_placed(self, robot):
+        assert robot._placed == False
+        with patch.object(robot, '_report') as mock_report:
+            output = robot.execute(Command(CommandType.REPORT))
+            assert asdict(output) == asdict(Output(CommandType.NULL))
+            mock_report.assert_not_called()
+            
+    @pytest.mark.parametrize("place_command", [
+        Command(CommandType.PLACE, 0, 0, Direction.NORTH),
+        Command(CommandType.PLACE, 1, 2, Direction.SOUTH),
+        Command(CommandType.PLACE, 3, 4, Direction.EAST),
+        Command(CommandType.PLACE, 4, 4, Direction.WEST),
+    ])
+    def test_report_returns_correct_output_when_placed(self, robot, place_command):
+        robot.execute(place_command)
+        assert robot._placed == True
+        output = robot.execute(Command(CommandType.REPORT))
+        expected_output = Output(CommandType.REPORT, Report(place_command.x, place_command.y, place_command.direction))
+        assert asdict(output) == asdict(expected_output)
             
     @pytest.mark.parametrize("place_command", [
         Command(CommandType.PLACE, -1, 0, Direction.NORTH),
